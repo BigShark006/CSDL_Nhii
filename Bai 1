@@ -1,0 +1,134 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+// Hàm phát sinh mảng ngẫu nhiên
+void phatSinhMang(int a[], int n) {
+    srand(time(NULL));
+    for (int i = 0; i < n; i++) {
+        a[i] = rand() % 100; // số ngẫu nhiên từ 0-99
+    }
+}
+
+// Hàm in mảng
+void xuatMang(int a[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("%d ", a[i]);
+    }
+    printf("\n");
+}
+
+// Interchange Sort
+void interchangeSort(int a[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = i + 1; j < n; j++) {
+            if (a[i] > a[j]) {
+                int tmp = a[i];
+                a[i] = a[j];
+                a[j] = tmp;
+            }
+        }
+    }
+}
+
+// Bubble Sort
+void bubbleSort(int a[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (a[j] > a[j + 1]) {
+                int tmp = a[j];
+                a[j] = a[j + 1];
+                a[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+// Selection Sort
+void selectionSort(int a[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int min = i;
+        for (int j = i + 1; j < n; j++) {
+            if (a[j] < a[min]) min = j;
+        }
+        int tmp = a[i];
+        a[i] = a[min];
+        a[min] = tmp;
+    }
+}
+
+// Insertion Sort
+void insertionSort(int a[], int n) {
+    for (int i = 1; i < n; i++) {
+        int key = a[i];
+        int j = i - 1;
+        while (j >= 0 && a[j] > key) {
+            a[j + 1] = a[j];
+            j--;
+        }
+        a[j + 1] = key;
+    }
+}
+
+// Copy mảng
+void copyMang(int a[], int b[], int n) {
+    for (int i = 0; i < n; i++) {
+        b[i] = a[i];
+    }
+}
+
+int main() {
+    int n;
+    printf("Nhap so phan tu n: ");
+    scanf("%d", &n);
+
+    int A[100], A2[100];
+    phatSinhMang(A, n);
+
+    int choice;
+    do {
+        printf("\n===== MENU =====\n");
+        printf("Mang goc: ");
+        xuatMang(A, n);
+
+        printf("1. Interchange Sort\n");
+        printf("2. Bubble Sort\n");
+        printf("3. Selection Sort\n");
+        printf("4. Insertion Sort\n");
+        printf("0. Thoat\n");
+        printf("Chon: ");
+        scanf("%d", &choice);
+
+        copyMang(A, A2, n);
+
+        switch (choice) {
+            case 1:
+                interchangeSort(A2, n);
+                printf("Mang sau khi Interchange Sort: ");
+                xuatMang(A2, n);
+                break;
+            case 2:
+                bubbleSort(A2, n);
+                printf("Mang sau khi Bubble Sort: ");
+                xuatMang(A2, n);
+                break;
+            case 3:
+                selectionSort(A2, n);
+                printf("Mang sau khi Selection Sort: ");
+                xuatMang(A2, n);
+                break;
+            case 4:
+                insertionSort(A2, n);
+                printf("Mang sau khi Insertion Sort: ");
+                xuatMang(A2, n);
+                break;
+            case 0:
+                printf("Thoat chuong trinh!\n");
+                break;
+            default:
+                printf("Lua chon khong hop le!\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
