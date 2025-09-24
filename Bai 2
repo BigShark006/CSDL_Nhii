@@ -1,0 +1,87 @@
+#include <stdio.h>
+#include <string.h>
+
+typedef struct {
+    char maNV[10];
+    char hoTen[30];
+    float luong;
+} NhanVien;
+
+// Nhập danh sách nhân viên
+void nhapDS(NhanVien ds[], int n) {
+    for (int i = 0; i < n; i++) {
+        printf("Nhap nhan vien thu %d:\n", i + 1);
+        printf("  Ma NV: ");
+        scanf("%s", ds[i].maNV);
+        getchar(); // bỏ ký tự Enter
+
+        printf("  Ho ten: ");
+        fgets(ds[i].hoTen, sizeof(ds[i].hoTen), stdin);
+        ds[i].hoTen[strcspn(ds[i].hoTen, "\n")] = '\0'; // xoá \n
+
+        printf("  Luong: ");
+        scanf("%f", &ds[i].luong);
+    }
+}
+
+// Xuất danh sách nhân viên
+void xuatDS(NhanVien ds[], int n) {
+    printf("\n%-10s %-25s %-10s\n", "Ma NV", "Ho ten", "Luong");
+    for (int i = 0; i < n; i++) {
+        printf("%-10s %-25s %-10.2f\n", ds[i].maNV, ds[i].hoTen, ds[i].luong);
+    }
+}
+
+// Sắp xếp giảm dần theo lương (Selection Sort)
+void sapXepLuong(NhanVien ds[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        int max = i;
+        for (int j = i + 1; j < n; j++) {
+            if (ds[j].luong > ds[max].luong) {
+                max = j;
+            }
+        }
+        if (max != i) {
+            NhanVien tmp = ds[i];
+            ds[i] = ds[max];
+            ds[max] = tmp;
+        }
+    }
+}
+
+// Sắp xếp tăng dần theo mã NV (Bubble Sort)
+void sapXepMaNV(NhanVien ds[], int n) {
+    for (int i = 0; i < n - 1; i++) {
+        for (int j = 0; j < n - i - 1; j++) {
+            if (strcmp(ds[j].maNV, ds[j + 1].maNV) > 0) {
+                NhanVien tmp = ds[j];
+                ds[j] = ds[j + 1];
+                ds[j + 1] = tmp;
+            }
+        }
+    }
+}
+
+int main() {
+    int n;
+    printf("Nhap so nhan vien: ");
+    scanf("%d", &n);
+
+    NhanVien ds[100];
+    nhapDS(ds, n);
+
+    printf("\nDanh sach nhan vien vua nhap:\n");
+    xuatDS(ds, n);
+
+    // Sắp xếp giảm dần theo lương
+    sapXepLuong(ds, n);
+    printf("\nDanh sach giam dan theo luong:\n");
+    xuatDS(ds, n);
+
+    // Sắp xếp tăng dần theo mã NV
+    sapXepMaNV(ds, n);
+    printf("\nDanh sach tang dan theo ma NV:\n");
+    xuatDS(ds, n);
+
+    return 0;
+}
