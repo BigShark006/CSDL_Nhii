@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// ===== Cấu trúc node =====
+typedef struct node {
+    int info;
+    struct node *left;
+    struct node *right;
+} Node;
+
+// ===== Tạo node mới =====
+Node* createNode(int x) {
+    Node* p = (Node*)malloc(sizeof(Node));
+    p->info = x;
+    p->left = p->right = NULL;
+    return p;
+}
+
+// ===== Thêm phần tử vào cây =====
+void insertNode(Node** root, int x) {
+    if (*root == NULL) {
+        *root = createNode(x);
+        return;
+    }
+    if (x < (*root)->info)
+        insertNode(&(*root)->left, x);
+    else if (x > (*root)->info)
+        insertNode(&(*root)->right, x);
+}
+
+// ===== Duyệt cây theo LNR (trái - gốc - phải) =====
+void LNR(Node* root) {
+    if (root != NULL) {
+        LNR(root->left);
+        printf("%d ", root->info);
+        LNR(root->right);
+    }
+}
+
+// ===== Duyệt cây theo NLR (gốc - trái - phải) =====
+void NLR(Node* root) {
+    if (root != NULL) {
+        printf("%d ", root->info);
+        NLR(root->left);
+        NLR(root->right);
+    }
+}
+
+// ===== Duyệt cây theo LRN (trái - phải - gốc) =====
+void LRN(Node* root) {
+    if (root != NULL) {
+        LRN(root->left);
+        LRN(root->right);
+        printf("%d ", root->info);
+    }
+}
+
+// ===== Đếm số lượng node =====
+int countNodes(Node* root) {
+    if (root == NULL)
+        return 0;
+    return 1 + countNodes(root->left) + countNodes(root->right);
+}
+
+// ===== Đếm số lượng node lá =====
+int countLeafNodes(Node* root) {
+    if (root == NULL)
+        return 0;
+    if (root->left == NULL && root->right == NULL)
+        return 1;
+    return countLeafNodes(root->left) + countLeafNodes(root->right);
+}
+
+// ===== Hàm main =====
+int main() {
+    Node* tree = NULL;
+    int n, x;
+
+    printf("Nhap so luong phan tu: ");
+    scanf("%d", &n);
+
+    for (int i = 0; i < n; i++) {
+        printf("Nhap phan tu thu %d: ", i + 1);
+        scanf("%d", &x);
+        insertNode(&tree, x);
+    }
+
+    printf("\nDuyet cay theo LNR: ");
+    LNR(tree);
+    printf("\n");
+
+    printf("Duyet cay theo NLR: ");
+    NLR(tree);
+    printf("\n");
+
+    printf("Duyet cay theo LRN: ");
+    LRN(tree);
+    printf("\n");
+
+    printf("\nTong so nut tren cay: %d", countNodes(tree));
+    printf("\nTong so nut la: %d\n", countLeafNodes(tree));
+
+    return 0;
+}
