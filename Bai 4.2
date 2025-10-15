@@ -1,0 +1,176 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+// ====== Cấu trúc Node ======
+typedef struct node {
+    int info;
+    struct node *left;
+    struct node *right;
+} Node;
+
+// ====== Khởi tạo cây ======
+void Init(Node **root) {
+    *root = NULL;
+}
+
+// ====== Kiểm tra cây rỗng ======
+int IsEmpty(Node *root) {
+    return root == NULL;
+}
+
+// ====== Tạo node mới ======
+Node* CreateNode(int x) {
+    Node *p = (Node*)malloc(sizeof(Node));
+    p->info = x;
+    p->left = p->right = NULL;
+    return p;
+}
+
+// ====== Thêm phần tử vào cây ======
+void Insert(Node **root, int x) {
+    if (*root == NULL) {
+        *root = CreateNode(x);
+        return;
+    }
+    if (x < (*root)->info)
+        Insert(&(*root)->left, x);
+    else if (x > (*root)->info)
+        Insert(&(*root)->right, x);
+}
+
+// ====== Duyệt NLR (gốc - trái - phải) ======
+void NLR(Node *root) {
+    if (root != NULL) {
+        printf("%d ", root->info);
+        NLR(root->left);
+        NLR(root->right);
+    }
+}
+
+// ====== Duyệt LNR (trái - gốc - phải) ======
+void LNR(Node *root) {
+    if (root != NULL) {
+        LNR(root->left);
+        printf("%d ", root->info);
+        LNR(root->right);
+    }
+}
+
+// ====== Duyệt LRN (trái - phải - gốc) ======
+void LRN(Node *root) {
+    if (root != NULL) {
+        LRN(root->left);
+        LRN(root->right);
+        printf("%d ", root->info);
+    }
+}
+
+// ====== Tìm node nhỏ nhất ======
+Node* FindMin(Node *root) {
+    while (root->left != NULL)
+        root = root->left;
+    return root;
+}
+
+// ====== Xóa một phần tử trong cây ======
+Node* Remove(Node *root, int x) {
+    if (root == NULL) return NULL;
+
+    if (x < root->info)
+        root->left = Remove(root->left, x);
+    else if (x > root->info)
+        root->right = Remove(root->right, x);
+    else {
+        if (root->left == NULL) {
+            Node *temp = root->right;
+            free(root);
+            return temp;
+        } else if (root->right == NULL) {
+            Node *temp = root->left;
+            free(root);
+            return temp;
+        } else {
+            Node *temp = FindMin(root->right);
+            root->info = temp->info;
+            root->right = Remove(root->right, temp->info);
+        }
+    }
+    return root;
+}
+
+// ====== Hủy toàn bộ cây ======
+void ClearTree(Node **root) {
+    if (*root != NULL) {
+        ClearTree(&(*root)->left);
+        ClearTree(&(*root)->right);
+        free(*root);
+        *root = NULL;
+    }
+}
+
+// ====== MENU ======
+int main() {
+    Node *tree;
+    Init(&tree);
+
+    int choice, x;
+
+    do {
+        printf("\n===== MENU CAY NHI PHAN TIM KIEM =====");
+        printf("\n1. Khoi tao cay");
+        printf("\n2. Them phan tu");
+        printf("\n3. Xoa 1 phan tu");
+        printf("\n4. Duyet cay NLR");
+        printf("\n5. Duyet cay LNR");
+        printf("\n6. Duyet cay LRN");
+        printf("\n7. Huy toan bo cay");
+        printf("\n0. Thoat");
+        printf("\nChon: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                Init(&tree);
+                printf("Da khoi tao cay rong!\n");
+                break;
+            case 2:
+                printf("Nhap gia tri can them: ");
+                scanf("%d", &x);
+                Insert(&tree, x);
+                printf("Da them %d vao cay.\n", x);
+                break;
+            case 3:
+                printf("Nhap gia tri can xoa: ");
+                scanf("%d", &x);
+                tree = Remove(tree, x);
+                printf("Da xoa %d neu ton tai.\n", x);
+                break;
+            case 4:
+                printf("Cay duyet theo NLR: ");
+                NLR(tree);
+                printf("\n");
+                break;
+            case 5:
+                printf("Cay duyet theo LNR: ");
+                LNR(tree);
+                printf("\n");
+                break;
+            case 6:
+                printf("Cay duyet theo LRN: ");
+                LRN(tree);
+                printf("\n");
+                break;
+            case 7:
+                ClearTree(&tree);
+                printf("Da huy toan bo cay.\n");
+                break;
+            case 0:
+                printf("Thoat chuong trinh.\n");
+                break;
+            default:
+                printf("Lua chon khong hop le.\n");
+        }
+    } while (choice != 0);
+
+    return 0;
+}
