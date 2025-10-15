@@ -248,11 +248,26 @@ int main() {
                     printf("Khong tim thay nut %d trong cay.\n", value);
                 break;
 
-            case 7:
-                printf("So nut la: %d\n", countLeaf(root));
-                printf("So nut giua: %d\n", countInternal(root)); // Nút trong (Internal Nodes)
-                printf("Tong so nut: %d\n", treeSize(root));
-                break;
+case 7:
+    if (root == NULL) {
+        printf("Cay rong, khong co nut nao de thong ke.\n");
+    } else {
+        int leaf_count = countLeaf(root);
+        int internal_count = countInternal(root);
+        int total_size = treeSize(root);
+
+        printf("So nut la: %d\n", leaf_count);
+        printf("So nut giua: %d\n", internal_count);
+        printf("Tong so nut: %d\n", total_size);
+
+        // In thêm kiểm tra để đảm bảo TONG = LA + GIUA
+        if (total_size == leaf_count + internal_count) {
+             printf("Kiem tra: Tong so nut = So la + So giua (Chinh xac)\n");
+        } else {
+             printf("Kiem tra: Tong so nut != So la + So giua (SAI LOGIC TINH TOAN)\n");
+        }
+    }
+    break;
 
             case 8:
                 printf("Do cao cua cay: %d\n", treeHeight(root));
