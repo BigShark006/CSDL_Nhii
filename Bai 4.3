@@ -1,124 +1,31 @@
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <limits.h> // Để dùng INT_MIN và INT_MAX cho isBST
 
-// ===== Cấu trúc Node =====
+// ======================================================
+// ===== Cấu trúc Node & Khởi tạo (Utilities) ===========
+// ======================================================
+
 typedef struct Node {
     int data;
     struct Node *left, *right;
 } Node;
 
-// ===== Khởi tạo Node mới =====
+// Khởi tạo Node mới
 Node* createNode(int value) {
     Node* newNode = (Node*)malloc(sizeof(Node));
+    if (newNode == NULL) {
+        perror("Loi cap phat bo nho");
+        exit(EXIT_FAILURE);
+    }
     newNode->data = value;
     newNode->left = newNode->right = NULL;
     return newNode;
 }
 
-// ===== Thêm phần tử =====
-Node* insertNode(Node* root, int value) {
-    if (root == NULL) return createNode(value);
-    if (value < root->data)
-        root->left = insertNode(root->left, value);
-    else if (value > root->data)
-        root->right = insertNode(root->right, value);
-    return root;
-}
-
-// ===== Xuất tăng dần (LNR) =====
-void printAscending(Node* root) {
-    if (root != NULL) {
-        printAscending(root->left);
-        printf("%d ", root->data);
-        printAscending(root->right);
-    }
-}
-
-// ===== Xuất giảm dần (RNL) =====
-void printDescending(Node* root) {
-    if (root != NULL) {
-        printDescending(root->right);
-        printf("%d ", root->data);
-        printDescending(root->left);
-    }
-}
-
-// ===== Kiểm tra có phải BST hợp lệ =====
-bool isBSTUtil(Node* root, int min, int max) {
-    if (root == NULL) return true;
-    if (root->data <= min || root->data >= max) return false;
-    return isBSTUtil(root->left, min, root->data) && isBSTUtil(root->right, root->data, max);
-}
-bool isBST(Node* root) {
-    return isBSTUtil(root, -999999, 999999);
-}
-
-// ===== Kiểm tra cây đầy đủ =====
-bool isFullTree(Node* root) {
-    if (root == NULL) return true;
-    if ((root->left == NULL && root->right != NULL) || (root->left != NULL && root->right == NULL))
-        return false;
-    return isFullTree(root->left) && isFullTree(root->right);
-}
-
-// ===== Tìm cha của nút chứa khóa x =====
-Node* findParent(Node* root, int x) {
-    if (root == NULL || root->data == x) return NULL;
-    if ((root->left && root->left->data == x) || (root->right && root->right->data == x))
-        return root;
-    if (x < root->data)
-        return findParent(root->left, x);
-    else
-        return findParent(root->right, x);
-}
-
-// ===== Đếm số nút lá =====
-int countLeaf(Node* root) {
-    if (root == NULL) return 0;
-    if (root->left == NULL && root->right == NULL) return 1;
-    return countLeaf(root->left) + countLeaf(root->right);
-}
-
-// ===== Đếm nút giữa =====
-int countInternal(Node* root) {
-    if (root == NULL || (root->left == NULL && root->right == NULL)) return 0;
-    return 1 + countInternal(root->left) + countInternal(root->right);
-}
-
-// ===== Kích thước (tổng số node) =====
-int treeSize(Node* root) {
-    if (root == NULL) return 0;
-    return 1 + treeSize(root->left) + treeSize(root->right);
-}
-
-// ===== Độ sâu / chiều cao =====
-int treeHeight(Node* root) {
-    if (root == NULL) return 0;
-    int lh = treeHeight(root->left);
-    int rh = treeHeight(root->right);
-    return (lh > rh ? lh : rh) + 1;
-}
-
-// ===== Tìm giá trị nhỏ nhất / lớn nhất =====
-int findMin(Node* root) {
-    if (root == NULL) return -1;
-    while (root->left) root = root->left;
-    return root->data;
-}
-int findMax(Node* root) {
-    if (root == NULL) return -1;
-    while (root->right) root = root->right;
-    return root->data;
-}
-
-// ===== Tính tổng các giá trị =====
-int sumTree(Node* root) {
-    if (root == NULL) return 0;
-    return root->data + sumTree(root->left) + sumTree(root->right);
-}
-
-// ===== Hủy toàn bộ cây =====
+// Hủy toàn bộ cây (giải phóng bộ nhớ)
 void destroyTree(Node* root) {
     if (root != NULL) {
         destroyTree(root->left);
@@ -127,26 +34,174 @@ void destroyTree(Node* root) {
     }
 }
 
-// ===== MAIN MENU =====
+// ======================================================
+// ===== Các Hàm Thao Tác Cơ Bản (Basic Operations) =====
+// ======================================================
+
+// 1. Thêm phần tử (chèn vào BST)
+Node* insertNode(Node* root, int value) {
+    if (root == NULL) return createNode(value);
+    if (value < root->data)
+        root->left = insertNode(root->left, value);
+    else if (value > root->data)
+        root->right = insertNode(root->right, value);
+    // Bỏ qua nếu giá trị đã tồn tại (do là BST)
+    return root;
+}
+
+// 2. Xuất tăng dần (Duyệt Inorder: LNR)
+void printAscending(Node* root) {
+    if (root != NULL) {
+        printAscending(root->left);
+        printf("%d ", root->data);
+        printAscending(root->right);
+    }
+}
+
+// 3. Xuất giảm dần (Duyệt RNL)
+void printDescending(Node* root) {
+    if (root != NULL) {
+        printDescending(root->right);
+        printf("%d ", root->data);
+        printDescending(root->left);
+    }
+}
+
+// ======================================================
+// ===== Các Hàm Kiểm Tra (Validation Functions) ========
+// ======================================================
+
+// 4. Kiểm tra có phải BST hợp lệ (Hàm đệ quy phụ)
+bool isBSTUtil(Node* root, int min_val, int max_val) {
+    if (root == NULL) return true;
+    
+    // Kiểm tra giới hạn (root->data phải lớn hơn min_val và nhỏ hơn max_val)
+    if (root->data <= min_val || root->data >= max_val) return false;
+    
+    // Đệ quy: Cây con trái phải nhỏ hơn root->data, cây con phải phải lớn hơn root->data
+    return isBSTUtil(root->left, min_val, root->data) && 
+           isBSTUtil(root->right, root->data, max_val);
+}
+
+// 4. Kiểm tra có phải BST hợp lệ (Hàm chính)
+bool isBST(Node* root) {
+    // Sử dụng INT_MIN và INT_MAX để bao quát toàn bộ phạm vi int
+    return isBSTUtil(root, INT_MIN, INT_MAX);
+}
+
+// 5. Kiểm tra cây đầy đủ (Full Binary Tree - Mỗi nút có 0 hoặc 2 con)
+bool isFullTree(Node* root) {
+    if (root == NULL) return true; // Cây rỗng là cây đầy đủ
+    
+    // Nếu là nút lá, hợp lệ
+    if (root->left == NULL && root->right == NULL) return true;
+    
+    // Nếu có 1 con, không hợp lệ
+    if (root->left == NULL || root->right == NULL) return false;
+    
+    // Đệ quy kiểm tra các cây con
+    return isFullTree(root->left) && isFullTree(root->right);
+}
+
+// ======================================================
+// ===== Các Hàm Thống Kê (Statistics Functions) ========
+// ======================================================
+
+// 6. Tìm cha của nút chứa khóa x
+Node* findParent(Node* root, int x) {
+    if (root == NULL || root->data == x) return NULL; // Không tìm thấy hoặc x là nút gốc
+    
+    // Kiểm tra con trái hoặc con phải có data là x
+    if ((root->left && root->left->data == x) || (root->right && root->right->data == x))
+        return root; // root chính là cha
+    
+    // Đệ quy tìm kiếm dựa trên tính chất BST
+    if (x < root->data)
+        return findParent(root->left, x);
+    else // if (x > root->data)
+        return findParent(root->right, x);
+}
+
+// 7a. Đếm số nút lá (Leaf Nodes)
+int countLeaf(Node* root) {
+    if (root == NULL) return 0;
+    if (root->left == NULL && root->right == NULL) return 1;
+    return countLeaf(root->left) + countLeaf(root->right);
+}
+
+// 7b. Đếm nút trong (Internal Nodes - Nút có ít nhất một con)
+int countInternal(Node* root) {
+    if (root == NULL || (root->left == NULL && root->right == NULL)) return 0; // Nút lá hoặc rỗng
+    return 1 + countInternal(root->left) + countInternal(root->right); // Đếm nút hiện tại và tiếp tục đệ quy
+}
+
+// 7c. Kích thước (tổng số node)
+int treeSize(Node* root) {
+    if (root == NULL) return 0;
+    return 1 + treeSize(root->left) + treeSize(root->right);
+}
+
+// 8. Độ sâu / chiều cao
+int treeHeight(Node* root) {
+    if (root == NULL) return 0;
+    int lh = treeHeight(root->left);
+    int rh = treeHeight(root->right);
+    return (lh > rh ? lh : rh) + 1;
+}
+
+// 9a. Tìm giá trị nhỏ nhất (Duyệt sang trái hết mức)
+int findMin(Node* root) {
+    if (root == NULL) return INT_MIN; // Trả về giá trị nhỏ nhất nếu cây rỗng
+    Node* current = root;
+    while (current->left) current = current->left;
+    return current->data;
+}
+
+// 9b. Tìm giá trị lớn nhất (Duyệt sang phải hết mức)
+int findMax(Node* root) {
+    if (root == NULL) return INT_MAX; // Trả về giá trị lớn nhất nếu cây rỗng
+    Node* current = root;
+    while (current->right) current = current->right;
+    return current->data;
+}
+
+// 10. Tính tổng các giá trị
+int sumTree(Node* root) {
+    if (root == NULL) return 0;
+    return root->data + sumTree(root->left) + sumTree(root->right);
+}
+
+
+// ======================================================
+// ================= MAIN MENU ==========================
+// ======================================================
+
 int main() {
     Node* root = NULL;
     int choice, value, n;
 
     do {
-        printf("\n========== MENU BAI 3 ==========\n");
+        printf("\n========== MENU BST BAI TAP ==========\n");
         printf("1. Nhap n phan tu vao cay\n");
-        printf("2. Xuat danh sach tang dan\n");
-        printf("3. Xuat danh sach giam dan\n");
-        printf("4. Kiem tra cay nhi phan dung\n");
-        printf("5. Kiem tra cay nhi phan day du\n");
+        printf("2. Xuat danh sach tang dan (LNR)\n");
+        printf("3. Xuat danh sach giam dan (RNL)\n");
+        printf("4. Kiem tra cay nhi phan dung (BST)\n");
+        printf("5. Kiem tra cay nhi phan day du (Full Tree)\n");
         printf("6. Tim nut cha cua khoa x\n");
-        printf("7. Dem so nut la, nut giua, kich thuoc cay\n");
+        printf("7. Thong ke: Nut la, Nut giua, Kich thuoc cay\n");
         printf("8. Xac dinh do cao cua cay\n");
         printf("9. Tim gia tri nho nhat / lon nhat\n");
         printf("10. Tinh tong cac gia tri tren cay\n");
         printf("0. Thoat\n");
         printf("Chon: ");
-        scanf("%d", &choice);
+        
+        // Kiểm tra lỗi khi đọc input
+        if (scanf("%d", &choice) != 1) {
+             printf("Loi nhap lieu! Vui long nhap so.\n");
+             while (getchar() != '\n'); // Xóa bộ đệm input
+             choice = -1; // Đặt choice không hợp lệ
+             continue;
+        }
 
         switch (choice) {
             case 1:
@@ -161,22 +216,24 @@ int main() {
 
             case 2:
                 printf("Tang dan: ");
+                if (root == NULL) printf("Cay rong.");
                 printAscending(root);
                 printf("\n");
                 break;
 
             case 3:
                 printf("Giam dan: ");
+                if (root == NULL) printf("Cay rong.");
                 printDescending(root);
                 printf("\n");
                 break;
 
             case 4:
-                printf(isBST(root) ? "Day la cay nhi phan dung\n" : "Khong phai cay nhi phan dung\n");
+                printf(isBST(root) ? "Day la cay nhi phan dung (BST)!\n" : "Khong phai cay nhi phan dung (BST)!\n");
                 break;
 
             case 5:
-                printf(isFullTree(root) ? "Day la cay day du\n" : "Khong phai cay day du\n");
+                printf(isFullTree(root) ? "Day la cay day du (Full Binary Tree)!\n" : "Khong phai cay day du!\n");
                 break;
 
             case 6:
@@ -185,13 +242,15 @@ int main() {
                 Node* parent = findParent(root, value);
                 if (parent)
                     printf("Nut cha cua %d la: %d\n", value, parent->data);
+                else if (root != NULL && root->data == value)
+                    printf("%d la nut goc, khong co nut cha.\n", value);
                 else
-                    printf("Khong tim thay nut cha hoac nut la goc.\n");
+                    printf("Khong tim thay nut %d trong cay.\n", value);
                 break;
 
             case 7:
                 printf("So nut la: %d\n", countLeaf(root));
-                printf("So nut giua: %d\n", countInternal(root));
+                printf("So nut giua: %d\n", countInternal(root)); // Nút trong (Internal Nodes)
                 printf("Tong so nut: %d\n", treeSize(root));
                 break;
 
@@ -200,8 +259,12 @@ int main() {
                 break;
 
             case 9:
-                printf("Gia tri nho nhat: %d\n", findMin(root));
-                printf("Gia tri lon nhat: %d\n", findMax(root));
+                if (root == NULL) {
+                    printf("Cay rong, khong tim duoc Max/Min.\n");
+                } else {
+                    printf("Gia tri nho nhat: %d\n", findMin(root));
+                    printf("Gia tri lon nhat: %d\n", findMax(root));
+                }
                 break;
 
             case 10:
@@ -209,7 +272,7 @@ int main() {
                 break;
 
             case 0:
-                printf("Thoat.\n");
+                printf("Thoat chuong trinh. Giai phong bo nho.\n");
                 break;
 
             default:
